@@ -1,4 +1,5 @@
 import type {
+  ApiAiComposeTone,
   ApiAttachBot,
   ApiAttachment,
   ApiBirthday,
@@ -17,6 +18,7 @@ import type {
   ApiFormattedText,
   ApiGeoPoint,
   ApiGlobalMessageSearchType,
+  ApiInputAiComposeTone,
   ApiInputInvoice,
   ApiInputInvoiceStarGift,
   ApiInputMessageReplyInfo,
@@ -57,6 +59,7 @@ import type {
   ApiStickerSetInfo,
   ApiThemeParameters,
   ApiTodoItem,
+  ApiTopPeerCategory,
   ApiTypeCurrencyAmount,
   ApiTypePrepaidGiveaway,
   ApiUpdate,
@@ -70,7 +73,7 @@ import type {
 import type { ApiCredentials } from '../../components/payment/PaymentModal';
 import type { FoldersActions } from '../../hooks/reducers/useFoldersReducer';
 import type { ReducerAction } from '../../hooks/useReducer';
-import type { P2pMessage } from '../../lib/secret-sauce';
+import type { P2pMessage } from '../../lib/vibecalls';
 import type {
   AccountSettings,
   AttachmentCompression,
@@ -1149,6 +1152,7 @@ export interface ActionPayloads {
   closeDeleteAccountModal: WithTabId | undefined;
   openAgeVerificationModal: WithTabId | undefined;
   closeAgeVerificationModal: WithTabId | undefined;
+  requestAgeVerification: WithTabId | undefined;
   setAccountTTL: {
     days: number;
   } & WithTabId | undefined;
@@ -1526,6 +1530,11 @@ export interface ActionPayloads {
     chatId: string;
     messageId: number;
     options: string[];
+  };
+  appendPollAnswer: {
+    chatId: string;
+    messageId: number;
+    text: string;
   };
   toggleTodoCompleted: {
     chatId: string;
@@ -1907,7 +1916,6 @@ export interface ActionPayloads {
 
   // Users
   loadNearestCountry: undefined;
-  loadTopUsers: undefined;
   loadContactList: undefined;
 
   loadCurrentUser: undefined;
@@ -2157,8 +2165,19 @@ export interface ActionPayloads {
     command: string;
     chatId?: string;
   } & WithTabId;
-  loadTopInlineBots: undefined;
-  loadTopBotApps: undefined;
+  loadTopPeers: {
+    category: ApiTopPeerCategory;
+    force?: boolean;
+  };
+  removeTopPeer: {
+    category: ApiTopPeerCategory;
+    peerId: string;
+  };
+  bumpTopPeerRating: {
+    category: ApiTopPeerCategory;
+    peerId: string;
+    date?: number;
+  };
   queryInlineBot: {
     chatId: string;
     username: string;
@@ -2168,6 +2187,7 @@ export interface ActionPayloads {
   sendInlineBotResult: {
     id: string;
     queryId: string;
+    botId?: string;
     chatId: string;
     threadId: ThreadId;
     isSilent?: boolean;
@@ -2178,6 +2198,7 @@ export interface ActionPayloads {
     chat: ApiChat;
     id: string;
     queryId: string;
+    botId?: string;
     replyInfo?: ApiInputMessageReplyInfo;
     sendAs?: ApiPeer;
     isSilent?: boolean;
@@ -2420,9 +2441,12 @@ export interface ActionPayloads {
   refreshLangPackFromCache: {
     langCode: string;
   };
-  openPollModal: ({
+  openPollModal: {
+    chatId: string;
+    threadId?: ThreadId;
+    messageListType: MessageListType;
     isQuiz?: boolean;
-  } & WithTabId) | undefined;
+  } & WithTabId;
   closePollModal: WithTabId | undefined;
   openTodoListModal: {
     chatId: string;
@@ -2589,6 +2613,7 @@ export interface ActionPayloads {
   } & WithTabId;
   loadPeerColors: undefined;
   loadTimezones: undefined;
+  loadAiComposeTones: undefined;
   openLeftColumnContent: {
     contentKey?: LeftColumnContent;
   } & WithTabId;
@@ -2648,12 +2673,12 @@ export interface ActionPayloads {
   } & WithTabId;
   setAiMessageEditorTranslateOptions: {
     selectedLanguage?: string;
-    selectedTone?: string;
+    selectedTone?: ApiInputAiComposeTone;
     shouldEmojify?: boolean;
     clearResult?: boolean;
   } & WithTabId;
   setAiMessageEditorStyleOptions: {
-    selectedTone?: string;
+    selectedTone?: ApiInputAiComposeTone;
     shouldEmojify?: boolean;
     clearResult?: boolean;
   } & WithTabId;
@@ -2661,7 +2686,7 @@ export interface ActionPayloads {
     shouldProofread?: boolean;
     isEmojify?: boolean;
     translateToLang?: string;
-    changeTone?: string;
+    tone?: ApiInputAiComposeTone;
   } & WithTabId;
   applyAiMessageEditorResult: WithTabId | undefined;
   sendAiMessageEditorResult: ({
@@ -2670,6 +2695,38 @@ export interface ActionPayloads {
     scheduleRepeatPeriod?: number;
   } & WithTabId) | undefined;
   clearAiMessageEditorPendingResult: WithTabId | undefined;
+  openAiToneEditorModal: {
+    toneToEdit?: ApiAiComposeTone;
+  } & WithTabId | undefined;
+  closeAiToneEditorModal: WithTabId | undefined;
+  createAiTone: {
+    title: string;
+    emojiId: string;
+    prompt: string;
+    shouldDisplayAuthor?: boolean;
+  } & WithTabId;
+  updateAiTone: {
+    tone: ApiInputAiComposeTone;
+    title?: string;
+    emojiId?: string;
+    prompt?: string;
+    shouldDisplayAuthor?: boolean;
+  } & WithTabId;
+  deleteAiTone: {
+    tone: ApiInputAiComposeTone;
+  } & WithTabId;
+  openAiTonePreview: {
+    slug: string;
+  } & WithTabId;
+  closeAiTonePreview: WithTabId | undefined;
+  saveAiTone: {
+    tone: ApiInputAiComposeTone;
+    unsave?: boolean;
+  } & WithTabId;
+  loadAiTonePreviewExample: {
+    tone: ApiInputAiComposeTone;
+    num: number;
+  } & WithTabId;
 
   openGiveawayModal: ({
     chatId: string;

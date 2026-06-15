@@ -1,4 +1,5 @@
 import type {
+  ApiAiComposeToneType,
   ApiAppConfig,
   ApiAttachBot,
   ApiAvailableEffect,
@@ -45,6 +46,7 @@ import type {
   ApiStoryAlbum,
   ApiTimezone,
   ApiTonAmount,
+  ApiTopPeerCategory,
   ApiTranscription,
   ApiUpdateAuthorizationStateType,
   ApiUpdateConnectionStateType,
@@ -91,6 +93,10 @@ export type GlobalState = {
   timezones?: {
     byId: Record<string, ApiTimezone>;
     hash: number;
+  };
+  aiComposeTones?: {
+    tones: ApiAiComposeToneType[];
+    hash: string;
   };
   isCacheApiSupported?: boolean;
   connectionState?: ApiUpdateConnectionStateType;
@@ -413,20 +419,12 @@ export type GlobalState = {
     };
   };
 
-  topPeers: {
-    userIds?: string[];
+  topPeerCategories: Partial<Record<ApiTopPeerCategory, {
+    peerIds: string[];
+    ratingsByPeerId: Record<string, number>;
     lastRequestedAt?: number;
-  };
-
-  topInlineBots: {
-    userIds?: string[];
-    lastRequestedAt?: number;
-  };
-
-  topBotApps: {
-    userIds?: string[];
-    lastRequestedAt?: number;
-  };
+    isDisabled?: boolean;
+  }>>;
 
   activeSessions: {
     byHash: Record<string, ApiSession>;
